@@ -1,0 +1,102 @@
+# SE 4220 – Project 5  
+## Database Design & Data Population
+
+---
+
+## Overview
+
+This task involves designing and populating a relational database for a cloud-based classified advertisement website. The database supports both visitor browsing and registered user listings.
+
+The database is implemented using **MySQL (Google Cloud SQL)**.
+
+---
+
+## Database Information
+
+- **Database Name:** classified_ads_db  
+- **Tables:** sections, categories, listings, users  
+
+---
+
+## Database Structure
+
+### sections
+Stores the 5 main sections of the website.
+- id (Primary Key)
+- name
+
+### categories
+Stores categories under each section.
+- id (Primary Key)
+- section_id (Foreign Key → sections.id)
+- name
+
+### listings
+Stores classified advertisement items.
+- id (Primary Key)
+- title
+- category_id (Foreign Key → categories.id)
+- user_id (Foreign Key → users.id)
+- price
+- description
+- city
+- phone
+- condition_status
+- posted_date
+
+### users
+Stores registered users.
+- id (Primary Key)
+- username
+- email
+- password
+
+---
+
+## Data Population Summary
+
+- 5 sections
+- 25 categories (5 per section)
+- 75 listings (3 per category)
+
+All requirements for initial data population have been satisfied.
+
+---
+
+## Setup Instructions
+
+1. Open Cloud SQL Studio
+2. Run:
+```sql
+CREATE DATABASE classified_ads_db;
+USE classified_ads_db;
+```
+3. Execute:
+database_seed.sql
+
+## Verification Queries
+-- Verify counts
+SELECT COUNT(*) AS total_sections FROM sections;
+SELECT COUNT(*) AS total_categories FROM categories;
+SELECT COUNT(*) AS total_listings FROM listings;
+
+-- Verify each category has 3 items
+SELECT 
+    categories.id AS category_id,
+    categories.name AS category_name,
+    COUNT(listings.id) AS total_items
+FROM categories
+LEFT JOIN listings ON categories.id = listings.category_id
+GROUP BY categories.id, categories.name
+ORDER BY categories.id;
+
+## Example Query
+SELECT 
+    listings.title,
+    categories.name AS category,
+    sections.name AS section,
+    listings.price
+FROM listings
+JOIN categories ON listings.category_id = categories.id
+JOIN sections ON categories.section_id = sections.id;
+
