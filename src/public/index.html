@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ames Classifieds</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-container">
+        <h1>Ames, IA Classifieds</h1>
+        <nav>
+          <button onclick="navigateHome()">Home</button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="home-view" class="view-section active">
+        <h2>Browse Categories</h2>
+        <div class="sections-grid" id="sections-container"></div>
+      </section>
+
+      <section id="category-view" class="view-section hidden">
+        <h2 id="category-title">Category Name</h2>
+        <button onclick="navigateHome()" class="back-btn">
+          ← Back to Sections
+        </button>
+        <div class="items-grid" id="items-container"></div>
+      </section>
+
+      <div id="item-modal" class="modal hidden">
+        <div class="modal-content">
+          <span class="close-btn" onclick="closeModal()">&times;</span>
+          <h2 id="modal-title">Item Title</h2>
+          <div class="item-details">
+            <p><strong>Price:</strong> $<span id="modal-price"></span></p>
+            <p>
+              <strong>Condition:</strong> <span id="modal-condition"></span>
+            </p>
+            <p><strong>City:</strong> <span id="modal-city"></span></p>
+            <p><strong>Posted By:</strong> <span id="modal-seller"></span></p>
+            <p><strong>Contact:</strong> <span id="modal-phone"></span></p>
+            <hr />
+            <h3>Description</h3>
+            <p id="modal-description"></p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
