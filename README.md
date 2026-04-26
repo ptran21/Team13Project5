@@ -3,8 +3,6 @@
 
 ---
 
----
-
 ## Overview
 
 This task involves designing and populating a relational database for a cloud-based classified advertisement website. The database supports both visitor browsing and registered user listings.
