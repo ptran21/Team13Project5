@@ -96,8 +96,13 @@ function showCategory(categoryId, categoryName) {
 }
 
 function showItemDetails(itemId) {
-  const item = listingsData.find((i) => i.id === itemId);
-  if (!item) return;
+  // Convert both to strings to prevent strict equality failures
+  const item = listingsData.find((i) => String(i.id) === String(itemId));
+
+  if (!item) {
+    console.error("Uh oh! Item not found in listingsData for ID:", itemId);
+    return;
+  }
 
   document.getElementById("modal-title").textContent = item.title;
   document.getElementById("modal-price").textContent = item.price;

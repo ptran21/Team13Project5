@@ -114,6 +114,25 @@
         </form>
       </section>
 
+      <div id="item-modal" class="modal hidden">
+        <div class="modal-content">
+          <span class="close-btn" onclick="closeModal()">&times;</span>
+          <h2 id="modal-title">Item Title</h2>
+          <div class="item-details">
+            <p><strong>Price:</strong> $<span id="modal-price"></span></p>
+            <p>
+              <strong>Condition:</strong> <span id="modal-condition"></span>
+            </p>
+            <p><strong>City:</strong> <span id="modal-city"></span></p>
+            <p><strong>Seller:</strong> <span id="modal-seller"></span></p>
+            <p><strong>Phone:</strong> <span id="modal-phone"></span></p>
+            <hr />
+            <p><strong>Description:</strong></p>
+            <p id="modal-description"></p>
+          </div>
+        </div>
+      </div>
+
       <div id="auth-modal" class="modal hidden">
         <div class="modal-content">
           <span class="close-btn" onclick="closeAuthModal()">&times;</span>
