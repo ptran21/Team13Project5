@@ -14,6 +14,7 @@ const MAIN_SECTIONS = [
 document.addEventListener("DOMContentLoaded", () => {
   fetchCategories();
   fetchListings();
+  checkAuth(); // check login state on page load
 });
 
 // --- API Calls ---
@@ -111,7 +112,6 @@ function showItemDetails(itemId) {
   document.getElementById("item-modal").classList.remove("hidden");
 }
 
-
 function showCreateListing() {
   document.getElementById("home-view").classList.add("hidden");
   document.getElementById("category-view").classList.add("hidden");
@@ -170,7 +170,9 @@ function validateListingForm() {
   const city = document.getElementById("listing-city").value.trim();
   const phone = document.getElementById("listing-phone").value.trim();
   const condition = document.getElementById("listing-condition").value;
-  const description = document.getElementById("listing-description").value.trim();
+  const description = document
+    .getElementById("listing-description")
+    .value.trim();
 
   if (!title) {
     document.getElementById("title-error").textContent = "Title is required.";
@@ -178,12 +180,14 @@ function validateListingForm() {
   }
 
   if (!categoryId) {
-    document.getElementById("category-error").textContent = "Category is required.";
+    document.getElementById("category-error").textContent =
+      "Category is required.";
     isValid = false;
   }
 
   if (price && Number(price) < 0) {
-    document.getElementById("price-error").textContent = "Price cannot be negative.";
+    document.getElementById("price-error").textContent =
+      "Price cannot be negative.";
     isValid = false;
   }
 
@@ -198,12 +202,14 @@ function validateListingForm() {
   }
 
   if (!condition) {
-    document.getElementById("condition-error").textContent = "Condition is required.";
+    document.getElementById("condition-error").textContent =
+      "Condition is required.";
     isValid = false;
   }
 
   if (!description) {
-    document.getElementById("description-error").textContent = "Description is required.";
+    document.getElementById("description-error").textContent =
+      "Description is required.";
     isValid = false;
   }
 
@@ -284,4 +290,119 @@ function navigateHome() {
 
 function closeModal() {
   document.getElementById("item-modal").classList.add("hidden");
+}
+
+// --- Authentication State & Logic ---
+
+let authMode = "login"; // 'login' or 'register'
+
+document.addEventListener("DOMContentLoaded", () => {
+  const authForm = document.getElementById("auth-form");
+  if (authForm) {
+    authForm.addEventListener("submit", handleAuthSubmit);
+  }
+});
+
+function checkAuth() {
+  const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username");
+
+  if (token) {
+    document.getElementById("nav-login").classList.add("hidden");
+    document.getElementById("nav-logout").classList.remove("hidden");
+    document.getElementById("nav-username").textContent = `Hi, ${username}`;
+    document.getElementById("nav-username").classList.remove("hidden");
+    document.getElementById("nav-create-listing").classList.remove("hidden");
+  } else {
+    document.getElementById("nav-login").classList.remove("hidden");
+    document.getElementById("nav-logout").classList.add("hidden");
+    document.getElementById("nav-username").classList.add("hidden");
+    document.getElementById("nav-create-listing").classList.add("hidden");
+  }
+}
+
+function showAuthModal(mode) {
+  authMode = mode;
+  document.getElementById("auth-error").textContent = "";
+  document.getElementById("auth-form").reset();
+  updateAuthUI();
+  document.getElementById("auth-modal").classList.remove("hidden");
+}
+
+function closeAuthModal() {
+  document.getElementById("auth-modal").classList.add("hidden");
+}
+
+function toggleAuthMode(event) {
+  event.preventDefault();
+  authMode = authMode === "login" ? "register" : "login";
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const title = document.getElementById("auth-title");
+  const usernameLabel = document.getElementById("auth-username-label");
+  const usernameInput = document.getElementById("auth-username");
+  const submitBtn = document.getElementById("auth-submit-btn");
+  const toggleText = document.getElementById("auth-toggle-text");
+
+  if (authMode === "login") {
+    title.textContent = "Login";
+    usernameLabel.classList.add("hidden");
+    usernameInput.removeAttribute("required");
+    submitBtn.textContent = "Login";
+    toggleText.textContent = "Don't have an account?";
+  } else {
+    title.textContent = "Register";
+    usernameLabel.classList.remove("hidden");
+    usernameInput.setAttribute("required", "true");
+    submitBtn.textContent = "Register";
+    toggleText.textContent = "Already have an account?";
+  }
+}
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  const username = document.getElementById("auth-username").value.trim();
+
+  const url = authMode === "login" ? "/api/auth/login" : "/api/auth/register";
+  const body =
+    authMode === "login" ? { email, password } : { username, email, password };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      document.getElementById("auth-error").textContent =
+        data.error || "Authentication failed";
+      return;
+    }
+
+    // On Success: Save credentials and update UI
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", data.user.username);
+
+    closeAuthModal();
+    checkAuth();
+  } catch (error) {
+    console.error("Auth Error:", error);
+    document.getElementById("auth-error").textContent =
+      "Server error. Please try again.";
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("username");
+  checkAuth();
+  navigateHome(); // Kick them back to home in case they are on the "Create Listing" view
 }
