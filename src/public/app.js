@@ -111,10 +111,174 @@ function showItemDetails(itemId) {
   document.getElementById("item-modal").classList.remove("hidden");
 }
 
+
+function showCreateListing() {
+  document.getElementById("home-view").classList.add("hidden");
+  document.getElementById("category-view").classList.add("hidden");
+  document.getElementById("create-listing-view").classList.remove("hidden");
+
+  populateCategoryDropdown();
+}
+
+function populateCategoryDropdown() {
+  const categorySelect = document.getElementById("listing-category");
+
+  categorySelect.innerHTML = `<option value="">Select a category</option>`;
+
+  categoriesData.forEach((cat) => {
+    const option = document.createElement("option");
+    option.value = cat.id;
+    option.textContent = `${cat.section_name || "Section"} - ${cat.name}`;
+    categorySelect.appendChild(option);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("create-listing-form");
+
+  if (form) {
+    form.addEventListener("submit", submitListingForm);
+  }
+});
+
+function clearFormErrors() {
+  const errorIds = [
+    "title-error",
+    "category-error",
+    "price-error",
+    "city-error",
+    "phone-error",
+    "condition-error",
+    "description-error",
+  ];
+
+  errorIds.forEach((id) => {
+    document.getElementById(id).textContent = "";
+  });
+
+  document.getElementById("form-message").textContent = "";
+}
+
+function validateListingForm() {
+  clearFormErrors();
+
+  let isValid = true;
+
+  const title = document.getElementById("listing-title").value.trim();
+  const categoryId = document.getElementById("listing-category").value;
+  const price = document.getElementById("listing-price").value;
+  const city = document.getElementById("listing-city").value.trim();
+  const phone = document.getElementById("listing-phone").value.trim();
+  const condition = document.getElementById("listing-condition").value;
+  const description = document.getElementById("listing-description").value.trim();
+
+  if (!title) {
+    document.getElementById("title-error").textContent = "Title is required.";
+    isValid = false;
+  }
+
+  if (!categoryId) {
+    document.getElementById("category-error").textContent = "Category is required.";
+    isValid = false;
+  }
+
+  if (price && Number(price) < 0) {
+    document.getElementById("price-error").textContent = "Price cannot be negative.";
+    isValid = false;
+  }
+
+  if (!city) {
+    document.getElementById("city-error").textContent = "City is required.";
+    isValid = false;
+  }
+
+  if (!phone) {
+    document.getElementById("phone-error").textContent = "Phone is required.";
+    isValid = false;
+  }
+
+  if (!condition) {
+    document.getElementById("condition-error").textContent = "Condition is required.";
+    isValid = false;
+  }
+
+  if (!description) {
+    document.getElementById("description-error").textContent = "Description is required.";
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+async function submitListingForm(event) {
+  event.preventDefault();
+
+  const isValid = validateListingForm();
+
+  if (!isValid) {
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    document.getElementById("form-message").textContent =
+      "You must be logged in to create a listing.";
+    document.getElementById("form-message").className = "error-message";
+    return;
+  }
+
+  const formData = {
+    title: document.getElementById("listing-title").value.trim(),
+    category_id: Number(document.getElementById("listing-category").value),
+    price: document.getElementById("listing-price").value
+      ? Number(document.getElementById("listing-price").value)
+      : null,
+    description: document.getElementById("listing-description").value.trim(),
+    city: document.getElementById("listing-city").value.trim(),
+    phone: document.getElementById("listing-phone").value.trim(),
+    condition_status: document.getElementById("listing-condition").value,
+  };
+
+  try {
+    const response = await fetch("/api/listings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      document.getElementById("form-message").textContent =
+        data.error || "Listing could not be created.";
+      document.getElementById("form-message").className = "error-message";
+      return;
+    }
+
+    document.getElementById("form-message").textContent =
+      "Listing created successfully!";
+    document.getElementById("form-message").className = "success-message";
+
+    document.getElementById("create-listing-form").reset();
+
+    await fetchListings();
+  } catch (error) {
+    console.error("Create listing error:", error);
+    document.getElementById("form-message").textContent =
+      "Server error. Please try again.";
+    document.getElementById("form-message").className = "error-message";
+  }
+}
+
 // --- Navigation & Modal Controls ---
 
 function navigateHome() {
   document.getElementById("category-view").classList.add("hidden");
+  document.getElementById("create-listing-view").classList.add("hidden");
   document.getElementById("home-view").classList.remove("hidden");
 }
 
