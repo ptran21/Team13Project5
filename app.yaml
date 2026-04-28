@@ -1,0 +1,14 @@
+runtime: nodejs22
+service: default
+
+env_variables:
+  PORT: 8080
+  DB_USER: root
+  DB_PASSWORD: "RootTeam13_2026!"
+  DB_NAME: classified_ads_db
+  INSTANCE_CONNECTION_NAME: team13project3:us-central1:project5-db
+  JWT_SECRET: "Team13Project5_JWT_2026!"
+  JWT_EXPIRES_IN: "1h"
+
+beta_settings:
+  cloud_sql_instances: team13project3:us-central1:project5-db
